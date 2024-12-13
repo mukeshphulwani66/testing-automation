@@ -1,0 +1,52 @@
+name: "Mern-App-prod"
+services:
+  mongodb:
+    container_name: mongodb
+    image: mongo:8.0.3
+    volumes:
+      - mongodbdata:/data/db
+    networks:
+      - db-net
+    env_file:
+      - ./env/mongo.env    
+  api:
+    container_name: node-api
+    build:
+      context: ./API-jokes
+      dockerfile: Dockerfile.prod
+    image: node-api-img:1.0.0
+    ports:
+        - "5000:5000"
+    depends_on:
+      - mongodb    
+    env_file:
+      - ./env/server.env      
+    networks:
+      - server-net
+      - db-net
+    restart: always        
+  client:
+    build:
+      context: ./react-client
+      dockerfile: Dockerfile.prod
+      args:
+         VITE_API_BASE_URL: http://localhost:5000 
+    ports:
+      - 80:80
+    depends_on:
+      - api  
+    networks:
+      - server-net    
+  
+
+
+volumes:
+  mongodbdata:
+networks:
+  db-net: 
+  server-net:
+  
+    
+
+
+ 

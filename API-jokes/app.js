@@ -11,7 +11,14 @@ main().catch(err => console.log(err));
 
 
 async function main() {
-   await mongoose.connect('mongodb://localhost:27017/mukeshdb');  
+//    await mongoose.connect('mongodb://localhost:27017/mukeshdb');  
+//    await mongoose.connect('mongodb://localhost:7000/mukeshdb');  
+//    await mongoose.connect('mongodb://host.docker.internal:7000/mukeshdb');  
+//    await mongoose.connect('mongodb://172.17.0.2:27017/mukeshdb');  
+//    await mongoose.connect('mongodb://mongodb:27017/mukeshdb');  
+//    await mongoose.connect(`mongodb://${process.env.USERNAME}:${process.env.PASSWORD}@mongodb:27017/mukeshdb?authSource=admin`);  
+   await mongoose.connect(`${process.env.MONGO_URI}`);  
+
 }
 
 mongoose.connection.on('connected',()=>{
@@ -29,6 +36,10 @@ app.get('/getJokes',async (req,res)=>{
        res.json({jokes})
 })
 
+app.get('/',(req,res)=>{
+   res.json({message:"application is up and running"})
+})
+
 app.post('/post-joke',async (req,res)=>{
     try{
         const newJoke =  await jokeModel.create({
@@ -39,6 +50,11 @@ app.post('/post-joke',async (req,res)=>{
         console.log(err)
     }
    
+})
+
+app.get('/crash',(req,res)=>{
+    res.send('Server is crashing...');
+    setTimeout(() => process.exit(1), 100);
 })
 
 app.listen(5000,()=>{
