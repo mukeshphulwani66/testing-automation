@@ -8,6 +8,10 @@ on:
 env:
   AWS_REGION: us-east-1
   IMAGE_NAME: test-demo-api-cicd
+  ECS_CLUSTER: CICDcluster
+  ECS_TASK_DEF_FAMILY: CICDwebdev
+  CONTAINER_NAME_API: node-api-container
+  ECS_SERVICE: CICDwebservice 
 
 jobs:
   build-image:
@@ -51,23 +55,23 @@ jobs:
             aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
             aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
             aws-region: ${{ env.AWS_REGION }}
-      - name: log image deployed
-        run: echo "Image deployed - ${{ env.IMAGE_NAME}}"  
-    #   - name: Fill in the new image ID in the Amazon ECS task definition
-    #     id: task-def
-    #     uses: aws-actions/amazon-ecs-render-task-definition@v1
-    #     with:
-    #         # task-definition: task-definition.json
-    #         # task-definition-arn:  task-definition-arn
-    #         task-definition-family: task-definition-family-name 
-    #         container-name: ${{ env.CONTAINER_NAME }}
-    #         image: ${{ needs.build-image.outputs.imageid }} 
-    #   - name: Deploy Amazon ECS task definition
-    #     uses: aws-actions/amazon-ecs-deploy-task-definition@df9643053eda01f169e64a0e60233aacca83799a
-    #     with:
-    #       task-definition: ${{ steps.task-def.outputs.task-definition }}
-    #       service: ${{ env.ECS_SERVICE }}
-    #       cluster: ${{ env.ECS_CLUSTER }}
-    #       wait-for-service-stability: true
+      - name: Log Image name to be deployed
+        run: echo "Deploying image - ${{secrets.DOCKER_USERNAME}}/${{ env.IMAGE_NAME}}"  
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+            # task-definition: task-definition.json
+            # task-definition-arn:  task-definition-arn
+            task-definition-family: ${{env.ECS_TASK_DEF_FAMILY}}
+            container-name: ${{ env.CONTAINER_NAME_API }}
+            image: "${{secrets.DOCKER_USERNAME}}/${{ env.IMAGE_NAME}}"
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@df9643053eda01f169e64a0e60233aacca83799a
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true
              
        
