@@ -18,7 +18,7 @@ jobs:
           images: ${{ secrets.DOCKER_USERNAME }}/test-demo-api-cicd
           tags: |
             latest
-            v1.0.${{ github.run_attempt }}
+            v1.0.${{ GITHUB_RUN_NUMBER}}
       - name: Display Docker image tags
         run: echo "Tags- ${{ steps.meta.outputs.tags }}"    
       - name: Log in to Docker Hub
