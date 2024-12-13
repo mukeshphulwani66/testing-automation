@@ -7,7 +7,7 @@ on:
 
 env:
   AWS_REGION: us-east-1
-  IMAGE_NAME: test-demo-api-cicd
+  IMAGE_NAME: aws-demo-node
   ECS_CLUSTER: CICDcluster
   ECS_TASK_DEF_FAMILY: CICDwebdev
   CONTAINER_NAME_API: node-api-container
