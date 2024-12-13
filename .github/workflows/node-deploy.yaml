@@ -7,12 +7,11 @@ on:
 
 env:
   AWS_REGION: us-east-1
+  IMAGE_NAME: test-demo-api-cicd
 
 jobs:
   build-image:
     runs-on: ubuntu-latest
-    outputs:
-        imageid: ${{ steps.push-img.outputs.imageid }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -20,7 +19,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ secrets.DOCKER_USERNAME }}/test-demo-api-cicd
+          images: ${{ secrets.DOCKER_USERNAME }}/${{env.IMAGE_NAME}}
           tags: |
             latest
             v1.0.${{github.run_number}}
@@ -35,7 +34,6 @@ jobs:
         uses: docker/setup-buildx-action@v3
       
       - name: Build and push Docker image
-        id: push-img
         uses: docker/build-push-action@v6
         with:
           push: true
@@ -54,7 +52,7 @@ jobs:
             aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
             aws-region: ${{ env.AWS_REGION }}
       - name: log image deployed
-        run: echo "Image deployed - ${{ needs.build-image.outputs.imageid }}"  
+        run: echo "Image deployed - ${{ env.IMAGE_NAME}}"  
     #   - name: Fill in the new image ID in the Amazon ECS task definition
     #     id: task-def
     #     uses: aws-actions/amazon-ecs-render-task-definition@v1
